@@ -63,11 +63,28 @@ app = FastAPI(
 @app.middleware("http")
 async def normalize_path_middleware(request: Request, call_next):
     try:
+        # Normalize textual path
         path = request.scope.get('path', '')
         if isinstance(path, str) and '//' in path:
             # Replace multiple slashes with a single slash
             new_path = re.sub(r'/{2,}', '/', path)
             request.scope['path'] = new_path
+
+        # Normalize raw_path (bytes) if present - some ASGI servers set raw_path
+        raw_path = request.scope.get('raw_path')
+        if isinstance(raw_path, (bytes, bytearray)):
+            try:
+                if b'//' in raw_path:
+                    new_raw = re.sub(rb'/{2,}', b'/', raw_path)
+                    request.scope['raw_path'] = new_raw
+            except Exception:
+                # ignore bytes replacement errors
+                pass
+
+        # Normalize root_path if set (rare) to avoid leading duplicate slashes
+        root = request.scope.get('root_path', '')
+        if isinstance(root, str) and '//' in root:
+            request.scope['root_path'] = re.sub(r'/{2,}', '/', root)
     except Exception:
         # Don't block the request if middleware fails; proceed to handler
         pass
@@ -82,10 +99,9 @@ async def normalize_path_middleware(request: Request, call_next):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-       
-        "https://advotac.com/",
+        "http://localhost:3000",
+        "https://advotac.com",
         settings.FRONTEND_URL,
-        ,
     ],
     allow_credentials=True,
     allow_methods=["*"],
