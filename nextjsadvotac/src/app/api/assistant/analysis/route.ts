@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const DEFAULT_BACKEND_BASE =
   process.env.FASTAPI_BASE_URL ??
   process.env.NEXT_PUBLIC_FASTAPI_URL ??
-  'http://localhost:8000';
+  'https://api.advotac.com';
 
 const backendBase = DEFAULT_BACKEND_BASE.replace(/\/+$/, '');
 

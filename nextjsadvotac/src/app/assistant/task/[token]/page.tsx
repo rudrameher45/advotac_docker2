@@ -1,7 +1,7 @@
 'use client';
 
+import React, { useEffect, useState, FormEvent } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState, FormEvent } from 'react';
 import './result.css';
 
 interface UserData {
@@ -90,18 +90,34 @@ const FALLBACK_SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
   (query) => `How does "${query}" affect compliance obligations?`,
 ];
 
-const FASTAPI_BASE_URL = 'http://localhost:8000';
+const FASTAPI_BASE_URL = process.env.NEXT_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.advotac.com';
 const GENERAL_HISTORY_API_BASE = `${FASTAPI_BASE_URL}/api/assistant/general-history`;
+
+// Minimal jsPDF types used in this file to avoid `any` and provide needed methods
+type JsPDFCtor = new (options?: unknown) => JsPDFInstance;
+
+interface JsPDFInstance {
+  internal: { pageSize: { getWidth(): number; getHeight(): number } };
+  addPage(): void;
+  setFont(fontName: string, fontStyle?: string): void;
+  setFontSize(size: number): void;
+  setTextColor(r: number, g: number, b: number): void;
+  text(text: string | string[], x: number, y: number): void;
+  splitTextToSize(text: string, maxWidth: number): string[];
+  getNumberOfPages(): number;
+  setPage(pageNumber: number): void;
+  save(filename: string): void;
+}
 
 function FormattedAnswer({ answer }: { answer: string }) {
   const formatAnswer = (text: string) => {
-    let formatted = text
+    const formatted = text
       .replace(/\*\*\*\*/g, '')
       .replace(/\*\*/g, '')
       .replace(/---/g, '\n')
       .trim();
 
-    const sections: JSX.Element[] = [];
+  const sections: React.ReactNode[] = [];
     const lines = formatted.split(/\n+/);
 
     let currentSection: string[] = [];
@@ -1055,24 +1071,20 @@ export default function AssistantAnalysisResult() {
     };
 
     if (globalWindow.jspdf?.jsPDF) {
-      return globalWindow.jspdf.jsPDF as new (...args: any[]) => {
-        [key: string]: any;
-      };
+      return globalWindow.jspdf.jsPDF as JsPDFCtor;
     }
 
     if (globalWindow.jsPDF) {
-      return globalWindow.jsPDF as new (...args: any[]) => {
-        [key: string]: any;
-      };
+      return globalWindow.jsPDF as JsPDFCtor;
     }
 
     const existingScript = document.getElementById('jspdf-script') as HTMLScriptElement | null;
     if (existingScript) {
-      return new Promise<new (...args: any[]) => { [key: string]: any }>((resolve, reject) => {
+      return new Promise<JsPDFCtor>((resolve, reject) => {
         existingScript.addEventListener('load', () => {
           const ctor = globalWindow.jspdf?.jsPDF || globalWindow.jsPDF;
           if (ctor) {
-            resolve(ctor as new (...args: any[]) => { [key: string]: any });
+            resolve(ctor as JsPDFCtor);
           } else {
             reject(new Error('PDF generator unavailable.'));
           }
@@ -1081,7 +1093,7 @@ export default function AssistantAnalysisResult() {
       });
     }
 
-    return new Promise<new (...args: any[]) => { [key: string]: any }>((resolve, reject) => {
+  return new Promise<JsPDFCtor>((resolve, reject) => {
       const script = document.createElement('script');
       script.id = 'jspdf-script';
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -1089,7 +1101,7 @@ export default function AssistantAnalysisResult() {
       script.onload = () => {
         const ctor = globalWindow.jspdf?.jsPDF || globalWindow.jsPDF;
         if (ctor) {
-          resolve(ctor as new (...args: any[]) => { [key: string]: any });
+          resolve(ctor as JsPDFCtor);
         } else {
           reject(new Error('PDF generator unavailable.'));
         }

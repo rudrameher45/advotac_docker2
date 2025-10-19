@@ -44,9 +44,8 @@ app = FastAPI(title="FastAPI Google OAuth", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://advotac.com/",
-        "https://advotac.com/",
-        settings.FRONTEND_URL,  # Will be http://localhost:3000 from .env
+        settings.FRONTEND_URL or 'https://advotac.com',
+        'https://advotac.com',
     ],
     allow_credentials=True,
     allow_methods=["*"],

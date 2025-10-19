@@ -48,7 +48,7 @@ const USER_ROLES = [
 ];
 
 const FASTAPI_BASE_URL =
-  process.env.NEXT_PUBLIC_FASTAPI_BASE_URL ?? 'http://localhost:8000';
+  process.env.NEXT_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.advotac.com';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -100,7 +100,7 @@ export default function Dashboard() {
 
       // Check if user has completed profile setup
       console.log('📡 [DASHBOARD] Checking user profile...');
-      const response = await fetch('http://localhost:8000/user-info', {
+  const response = await fetch(`${FASTAPI_BASE_URL}/user-info`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -217,7 +217,7 @@ export default function Dashboard() {
       console.log('📤 [DASHBOARD] Submitting profile setup:', profileData);
       console.log('🔑 [DASHBOARD] Token exists:', !!token);
 
-      const response = await fetch('http://localhost:8000/user-info', {
+  const response = await fetch(`${FASTAPI_BASE_URL}/user-info`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

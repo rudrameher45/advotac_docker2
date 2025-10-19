@@ -62,7 +62,7 @@ $env:PGHOST="openapitest1.postgres.database.azure.com"
 # Google OAuth credentials
 $env:GOOGLE_CLIENT_ID="your-google-client-id"
 $env:GOOGLE_CLIENT_SECRET="your-google-client-secret"
-$env:GOOGLE_REDIRECT_URI="http://localhost:8000/auth/google/callback"
+$env:GOOGLE_REDIRECT_URI="https://api.advotac.com/auth/google/callback"
 
 # JWT Secret
 $env:SECRET_KEY="your-secret-key-here"
@@ -79,14 +79,14 @@ PGPASSWORD=Rohit()Ritika()
 
 GOOGLE_CLIENT_ID=your-google-client-id-here
 GOOGLE_CLIENT_SECRET=your-google-client-secret-here
-GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+GOOGLE_REDIRECT_URI=https://api.advotac.com/auth/google/callback
 
 SECRET_KEY=your-secret-key-here-change-this-in-production
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-FRONTEND_URL=http://localhost:3000
-BACKEND_URL=http://localhost:8000
+FRONTEND_URL=https://advotac.com
+BACKEND_URL=https://api.advotac.com
 ```
 
 ### 3. Test Database Connection
@@ -107,7 +107,7 @@ This will:
 python main.py
 ```
 
-The server will start on `http://localhost:8000`
+The server will start on `https://api.advotac.com` (production) or your configured BACKEND_URL
 
 ## API Endpoints
 
@@ -210,12 +210,12 @@ SELECT * FROM auth_logs ORDER BY timestamp DESC LIMIT 10;
 
 ### 1. Get Login URL
 ```bash
-curl http://localhost:8000/login
+curl https://api.advotac.com/login
 ```
 
 ### 2. Test with Token
 ```bash
-curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8000/me
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" https://api.advotac.com/me
 ```
 
 ### 3. View All Users
