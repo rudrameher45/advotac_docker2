@@ -1,0 +1,3 @@
+/* Minimal privacy page styles to satisfy import during build */
+.privacy-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; }
+.privacy-body { color: #475569; line-height: 1.6; }

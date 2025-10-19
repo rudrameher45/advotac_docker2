@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Login Fix - Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        h1 {
+            color: #1a202c;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .status {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #2d3748;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .test-item {
+            padding: 12px 16px;
+            background: #f7fafc;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .test-item .label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+        .test-item .value {
+            color: #2d3748;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge.success {
+            background: #48bb78;
+            color: white;
+        }
+        .badge.error {
+            background: #f56565;
+            color: white;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        .console-log {
+            background: #1a202c;
+            color: #68d391;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .console-log div {
+            margin-bottom: 4px;
+        }
+        .icon {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 OAuth Login Fix - Test Dashboard</h1>
+        <p class="subtitle">Test the authentication flow after deployment</p>
+
+        <div id="status" class="status info">
+            <strong>Status:</strong> Checking authentication...
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">🔍</span> Authentication Check</h2>
+            <div class="test-item">
+                <span class="label">Auth Token:</span>
+                <span id="tokenStatus" class="value">Checking...</span>
+            </div>
+            <div class="test-item">
+                <span class="label">User Data:</span>
+                <span id="userDataStatus" class="value">Checking...</span>
+            </div>
+            <div class="test-item">
+                <span class="label">Token Length:</span>
+                <span id="tokenLength" class="value">-</span>
+            </div>
+            <div class="test-item">
+                <span class="label">User Email:</span>
+                <span id="userEmail" class="value">-</span>
+            </div>
+            <div class="test-item">
+                <span class="label">User Name:</span>
+                <span id="userName" class="value">-</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">🧪</span> Actions</h2>
+            <button class="btn btn-primary" onclick="testLogin()">Test Login Flow</button>
+            <button class="btn btn-secondary" onclick="checkAuth()">Re-check Auth</button>
+            <button class="btn btn-danger" onclick="clearAuth()">Clear Auth Data</button>
+            <button class="btn btn-secondary" onclick="viewConsole()">View Console</button>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">📝</span> Test Instructions</h2>
+            <ol style="color: #4a5568; line-height: 1.8; padding-left: 20px;">
+                <li><strong>Clear Browser Data:</strong> Click "Clear Auth Data" or run <code>localStorage.clear()</code> in console</li>
+                <li><strong>Test Login:</strong> Click "Test Login Flow" to go to auth page</li>
+                <li><strong>Login with Google:</strong> Complete the Google OAuth process</li>
+                <li><strong>Verify Redirect:</strong> You should land on /test_dashboard (NOT /auth)</li>
+                <li><strong>Check Persistence:</strong> Refresh page, should stay on dashboard</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2><span class="icon">💻</span> Console Output</h2>
+            <div id="consoleLog" class="console-log">
+                <div>Ready to test...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const consoleLog = document.getElementById('consoleLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            const color = type === 'success' ? '#68d391' : type === 'error' ? '#fc8181' : '#90cdf4';
+            
+            const entry = document.createElement('div');
+            entry.style.color = color;
+            entry.textContent = `[${timestamp}] ${icon} ${message}`;
+            consoleLog.appendChild(entry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+            
+            console.log(`${icon} ${message}`);
+        }
+
+        function checkAuth() {
+            log('Checking authentication status...', 'info');
+            
+            const token = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+            
+            const statusDiv = document.getElementById('status');
+            const tokenStatus = document.getElementById('tokenStatus');
+            const userDataStatus = document.getElementById('userDataStatus');
+            const tokenLength = document.getElementById('tokenLength');
+            const userEmail = document.getElementById('userEmail');
+            const userName = document.getElementById('userName');
+
+            if (token && userData) {
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '<strong>✅ Authenticated:</strong> User is logged in successfully!';
+                
+                tokenStatus.innerHTML = '<span class="badge success">FOUND</span>';
+                userDataStatus.innerHTML = '<span class="badge success">FOUND</span>';
+                tokenLength.textContent = token.length + ' chars';
+                
+                try {
+                    const parsed = JSON.parse(userData);
+                    userEmail.textContent = parsed.email || 'N/A';
+                    userName.textContent = parsed.name || 'N/A';
+                    
+                    log(`Token found: ${token.substring(0, 20)}...`, 'success');
+                    log(`User: ${parsed.name} (${parsed.email})`, 'success');
+                } catch (e) {
+                    userEmail.textContent = 'Parse Error';
+                    userName.textContent = 'Parse Error';
+                    log('Error parsing user data: ' + e.message, 'error');
+                }
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '<strong>❌ Not Authenticated:</strong> No auth token found. Please login.';
+                
+                tokenStatus.innerHTML = '<span class="badge error">NOT FOUND</span>';
+                userDataStatus.innerHTML = '<span class="badge error">NOT FOUND</span>';
+                tokenLength.textContent = '-';
+                userEmail.textContent = '-';
+                userName.textContent = '-';
+                
+                log('No authentication data found', 'error');
+            }
+        }
+
+        function clearAuth() {
+            log('Clearing authentication data...', 'info');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            sessionStorage.clear();
+            log('Auth data cleared successfully', 'success');
+            checkAuth();
+        }
+
+        function testLogin() {
+            log('Redirecting to login page...', 'info');
+            window.location.href = 'https://advotac02.vercel.app/auth';
+        }
+
+        function viewConsole() {
+            log('Opening browser console...', 'info');
+            console.log('=== AUTHENTICATION DEBUG INFO ===');
+            console.log('Token:', localStorage.getItem('authToken'));
+            console.log('User Data:', localStorage.getItem('userData'));
+            console.log('Current URL:', window.location.href);
+            console.log('================================');
+            alert('Check the browser console (F12) for detailed information');
+        }
+
+        // Run check on page load
+        window.addEventListener('load', () => {
+            log('Test page loaded', 'info');
+            checkAuth();
+        });
+
+        // Monitor localStorage changes
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'authToken' || e.key === 'userData') {
+                log(`localStorage changed: ${e.key}`, 'info');
+                checkAuth();
+            }
+        });
+    </script>
+</body>
+</html>

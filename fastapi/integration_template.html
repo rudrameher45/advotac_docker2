@@ -1,0 +1,524 @@
+x<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advotac - Integration Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #000000;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 40px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        p {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        
+        .btn-google {
+            width: 100%;
+            padding: 12px 24px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: opacity 0.2s;
+        }
+        
+        .btn-google:hover {
+            opacity: 0.8;
+        }
+        
+        .btn-secondary {
+            width: 100%;
+            padding: 12px 24px;
+            background: #f3f4f6;
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: background 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .user-profile {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .user-profile img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 16px;
+            border: 3px solid #e5e7eb;
+        }
+        
+        .user-profile h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .user-profile p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #000000;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- LOGIN PAGE SECTION -->
+<!-- ============================================ -->
+<div id="loginPage" class="container hidden">
+    <h1>Welcome to Advotac</h1>
+    <p>Sign in to access your legal dashboard</p>
+    
+    <div class="status info">
+        <strong>Note:</strong> Replace this template with your beautiful UI! Just keep the JavaScript.
+    </div>
+    
+    <button class="btn-google" onclick="handleGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path fill="currentColor" d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+            <path fill="currentColor" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/>
+            <path fill="currentColor" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+            <path fill="currentColor" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+        </svg>
+        Sign in with Google
+    </button>
+</div>
+
+<!-- ============================================ -->
+<!-- DASHBOARD PAGE SECTION -->
+<!-- ============================================ -->
+<div id="dashboardPage" class="container hidden">
+    <div class="user-profile">
+        <img id="userPicture" src="https://via.placeholder.com/100" alt="Profile Picture">
+        <h2 id="userName">Loading...</h2>
+        <p id="userEmail">Loading...</p>
+    </div>
+    
+    <div id="statusMessage" class="status success hidden">
+        ✅ Successfully logged in!
+    </div>
+    
+    <button class="btn-secondary" onclick="refreshUserData()">
+        🔄 Refresh User Data
+    </button>
+    
+    <button class="btn-secondary" onclick="testAPICall()">
+        🧪 Test API Call
+    </button>
+    
+    <button class="btn-secondary" onclick="logout()">
+        🚪 Logout
+    </button>
+    
+    <div class="status info" style="margin-top: 20px;">
+        <strong>Template Note:</strong> Replace this with your dashboard UI! Keep the IDs and functions.
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- LOADING STATE -->
+<!-- ============================================ -->
+<div id="loadingPage" class="container">
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- JAVASCRIPT - THIS IS WHAT YOU NEED! -->
+<!-- ============================================ -->
+<script>
+    // ========================================
+    // CONFIGURATION
+    // ========================================
+    const API_BASE_URL = 'https://fastapi-eight-zeta.vercel.app';
+    const LOGIN_PAGE_URL = '/auth';  // Your login page URL
+    const DASHBOARD_PAGE_URL = '/test_dashboard';  // Your dashboard page URL
+    
+    // ========================================
+    // PAGE ROUTING
+    // ========================================
+    
+    function showPage(pageName) {
+        // Hide all pages
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('dashboardPage').classList.add('hidden');
+        document.getElementById('loadingPage').classList.add('hidden');
+        
+        // Show requested page
+        document.getElementById(pageName).classList.remove('hidden');
+    }
+    
+    function getCurrentPage() {
+        const path = window.location.pathname;
+        if (path.includes('auth') || path === '/' || path === '/login') {
+            return 'login';
+        } else if (path.includes('dashboard')) {
+            return 'dashboard';
+        }
+        return 'login';
+    }
+    
+    // ========================================
+    // AUTHENTICATION FUNCTIONS
+    // ========================================
+    
+    function handleGoogleLogin() {
+        console.log('🔐 Starting Google OAuth flow...');
+        // Redirect to FastAPI backend to start OAuth
+        window.location.href = API_BASE_URL + '/login';
+    }
+    
+    function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            token: params.get('token'),
+            user_id: params.get('user_id'),
+            name: params.get('name'),
+            email: params.get('email'),
+            picture: params.get('picture')
+        };
+    }
+    
+    function displayUserData(data) {
+        const userName = decodeURIComponent(data.name || 'User');
+        const userEmail = decodeURIComponent(data.email || '');
+        const userPicture = decodeURIComponent(data.picture || '');
+        
+        console.log('👤 Displaying user data:', { userName, userEmail });
+        
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userEmail').textContent = userEmail;
+        
+        const pictureElement = document.getElementById('userPicture');
+        if (userPicture && pictureElement) {
+            pictureElement.src = userPicture;
+        }
+        
+        // Show success message
+        const statusMsg = document.getElementById('statusMessage');
+        if (statusMsg) {
+            statusMsg.textContent = '✅ Successfully logged in!';
+            statusMsg.classList.remove('hidden', 'error', 'info');
+            statusMsg.classList.add('success');
+        }
+    }
+    
+    async function refreshUserData() {
+        console.log('🔄 Refreshing user data from API...');
+        
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            alert('Please login again');
+            logout();
+            return;
+        }
+        
+        try {
+            const response = await fetch(API_BASE_URL + '/me', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            console.log('📡 API response status:', response.status);
+            
+            if (!response.ok) {
+                if (response.status === 401) {
+                    alert('⚠️ Session expired. Please login again.');
+                    logout();
+                    return;
+                }
+                throw new Error('API error: ' + response.status);
+            }
+            
+            const userData = await response.json();
+            console.log('✅ User data received:', userData);
+            
+            // Update display
+            displayUserData({
+                name: userData.name,
+                email: userData.email,
+                picture: userData.picture
+            });
+            
+            // Update localStorage
+            localStorage.setItem('user_name', userData.name);
+            localStorage.setItem('user_email', userData.email);
+            localStorage.setItem('user_picture', userData.picture || '');
+            
+            alert('✅ User data refreshed successfully!');
+            
+        } catch (error) {
+            console.error('❌ Error fetching user data:', error);
+            alert('❌ Failed to refresh user data: ' + error.message);
+        }
+    }
+    
+    async function testAPICall() {
+        console.log('🧪 Testing API call...');
+        
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            alert('No token found. Please login first.');
+            return;
+        }
+        
+        try {
+            const response = await fetch(API_BASE_URL + '/health');
+            const data = await response.json();
+            
+            console.log('🏥 Health check response:', data);
+            alert('✅ API is working!\n\n' + JSON.stringify(data, null, 2));
+            
+        } catch (error) {
+            console.error('❌ API test failed:', error);
+            alert('❌ API test failed: ' + error.message);
+        }
+    }
+    
+    function logout() {
+        console.log('🚪 Logging out...');
+        
+        // Clear all stored data
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('user_name');
+        localStorage.removeItem('user_email');
+        localStorage.removeItem('user_picture');
+        
+        // Redirect to login page
+        window.location.href = LOGIN_PAGE_URL;
+    }
+    
+    // ========================================
+    // INITIALIZATION
+    // ========================================
+    
+    window.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Page loaded');
+        
+        const currentPage = getCurrentPage();
+        console.log('📄 Current page:', currentPage);
+        
+        if (currentPage === 'dashboard') {
+            // Dashboard page
+            const params = getUrlParams();
+            console.log('🔍 URL parameters:', params);
+            
+            if (params.token) {
+                // Fresh login with token in URL
+                console.log('✅ Fresh login detected');
+                
+                // Store token and user data
+                localStorage.setItem('access_token', params.token);
+                localStorage.setItem('user_id', params.user_id);
+                localStorage.setItem('user_name', params.name);
+                localStorage.setItem('user_email', params.email);
+                localStorage.setItem('user_picture', params.picture);
+                
+                // Display user data
+                displayUserData(params);
+                
+                // Clean URL (remove parameters)
+                window.history.replaceState({}, document.title, DASHBOARD_PAGE_URL);
+                
+                // Show dashboard
+                showPage('dashboardPage');
+                
+            } else {
+                // No token in URL, check localStorage
+                const storedToken = localStorage.getItem('access_token');
+                
+                if (!storedToken) {
+                    // No stored token either - redirect to login
+                    console.log('❌ No token found, redirecting to login');
+                    window.location.href = LOGIN_PAGE_URL;
+                    return;
+                }
+                
+                // We have a stored token - show stored data
+                console.log('✅ Using stored token');
+                displayUserData({
+                    name: localStorage.getItem('user_name'),
+                    email: localStorage.getItem('user_email'),
+                    picture: localStorage.getItem('user_picture')
+                });
+                
+                showPage('dashboardPage');
+            }
+            
+        } else {
+            // Login page
+            console.log('📝 Showing login page');
+            
+            // Check if already logged in
+            const storedToken = localStorage.getItem('access_token');
+            if (storedToken) {
+                console.log('✅ Already logged in, redirecting to dashboard');
+                window.location.href = DASHBOARD_PAGE_URL;
+                return;
+            }
+            
+            showPage('loginPage');
+        }
+    });
+    
+    // ========================================
+    // BROWSER CONSOLE HELPERS
+    // ========================================
+    
+    window.debugInfo = function() {
+        console.log('='.repeat(50));
+        console.log('🔍 DEBUG INFORMATION');
+        console.log('='.repeat(50));
+        console.log('Current Page:', window.location.pathname);
+        console.log('Token:', localStorage.getItem('access_token') ? 'EXISTS' : 'NOT FOUND');
+        console.log('User Name:', localStorage.getItem('user_name'));
+        console.log('User Email:', localStorage.getItem('user_email'));
+        console.log('API Base URL:', API_BASE_URL);
+        console.log('='.repeat(50));
+    };
+    
+    console.log('💡 TIP: Run debugInfo() in console for debug information');
+</script>
+
+<!-- ============================================ -->
+<!-- USAGE INSTRUCTIONS -->
+<!-- ============================================ -->
+<!--
+
+📚 HOW TO USE THIS TEMPLATE:
+
+1. FOR YOUR LOGIN PAGE (/auth):
+   - Keep your existing beautiful HTML/CSS
+   - Copy only the handleGoogleLogin() function
+   - Update your button: onclick="handleGoogleLogin()"
+   - That's it!
+
+2. FOR YOUR DASHBOARD PAGE (/test_dashboard):
+   - Keep your existing beautiful HTML/CSS
+   - Make sure you have these elements with these IDs:
+     * <img id="userPicture">
+     * <h2 id="userName">
+     * <p id="userEmail">
+   - Copy all the JavaScript functions
+   - Add buttons with onclick="refreshUserData()" and onclick="logout()"
+   - Done!
+
+3. TESTING:
+   - You can test this template file directly
+   - Change URL path to /auth for login page
+   - Change URL path to /test_dashboard for dashboard page
+   - Or open in browser and test the flow
+
+4. CUSTOMIZE:
+   - Update LOGIN_PAGE_URL and DASHBOARD_PAGE_URL constants
+   - Adjust CSS to match your design
+   - Keep the function names and IDs
+   - Your UI should look exactly how you want!
+
+5. TROUBLESHOOTING:
+   - Open browser console (F12)
+   - Run: debugInfo()
+   - Check for error messages
+   - Verify token is stored
+
+📖 MORE HELP:
+- Read: QUICK_START_FRONTEND.md
+- See: FRONTEND_INTEGRATION_COMPLETE_GUIDE.md
+- Check: frontend_example_code.html
+
+-->
+
+</body>
+</html>

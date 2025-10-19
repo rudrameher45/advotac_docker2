@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Version Checker</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { color: #667eea; }
+        .check-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+        .success { background: #d4edda; border-color: #28a745; }
+        .error { background: #f8d7da; border-color: #dc3545; }
+        .info { background: #d1ecf1; border-color: #17a2b8; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+        button:hover { background: #5568d3; }
+        .emoji { font-size: 24px; margin-right: 10px; }
+        pre {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Dashboard Version Checker</h1>
+        <p>This page helps verify if the new dashboard features are deployed.</p>
+        
+        <div id="results"></div>
+        
+        <h2>Actions:</h2>
+        <button onclick="checkVersion()">🔍 Check Version</button>
+        <button onclick="hardRefresh()">🔄 Hard Refresh Dashboard</button>
+        <button onclick="openIncognito()">🕶️ Incognito Instructions</button>
+        <button onclick="clearCacheInstructions()">🧹 Clear Cache Guide</button>
+        
+        <h2>Quick Links:</h2>
+        <div>
+            <a href="https://advotac02.vercel.app/test_dashboard" target="_blank" style="color: #667eea;">
+                Main Dashboard URL
+            </a>
+        </div>
+        <div>
+            <a href="https://advotac02-fcl3l0i43-rudrameher45s-projects.vercel.app/test_dashboard" target="_blank" style="color: #667eea;">
+                Direct Deployment URL (Bypasses Some Cache)
+            </a>
+        </div>
+        <div>
+            <a href="https://advotac02.vercel.app/test_dashboard?v=2&nocache=true" target="_blank" style="color: #667eea;">
+                Cache-Busted URL
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function checkVersion() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>Checking...</h2>';
+            
+            // Open the dashboard in a new window and check
+            const dashboardWindow = window.open('https://advotac02.vercel.app/test_dashboard', '_blank');
+            
+            setTimeout(() => {
+                let html = '<h2>Check Results:</h2>';
+                
+                html += '<div class="check-item info">';
+                html += '<span class="emoji">ℹ️</span>';
+                html += '<strong>Dashboard opened in new tab</strong><br>';
+                html += 'Look for these features:';
+                html += '<ul>';
+                html += '<li>✅ "Ask Legal Questions" heading</li>';
+                html += '<li>✅ Large text area for questions</li>';
+                html += '<li>✅ "Suggested Questions" label</li>';
+                html += '<li>✅ 4 clickable question buttons (2x2 grid)</li>';
+                html += '<li>✅ Purple "Generate Response" button</li>';
+                html += '</ul>';
+                html += '</div>';
+                
+                html += '<div class="check-item success">';
+                html += '<span class="emoji">✅</span>';
+                html += '<strong>If you see ALL the above:</strong> New version is loaded!';
+                html += '</div>';
+                
+                html += '<div class="check-item error">';
+                html += '<span class="emoji">❌</span>';
+                html += '<strong>If you only see profile info:</strong> Old version (cached)<br>';
+                html += 'Try: Ctrl + Shift + R to hard refresh';
+                html += '</div>';
+                
+                resultsDiv.innerHTML = html;
+            }, 1000);
+        }
+        
+        function hardRefresh() {
+            alert('To hard refresh the dashboard:\n\n' +
+                  '1. Go to the test_dashboard page\n' +
+                  '2. Press: Ctrl + Shift + R (Windows/Linux)\n' +
+                  '   or: Cmd + Shift + R (Mac)\n' +
+                  '3. This forces a fresh load\n\n' +
+                  'Opening dashboard now...');
+            window.open('https://advotac02.vercel.app/test_dashboard', '_blank');
+        }
+        
+        function openIncognito() {
+            alert('To open in Incognito/Private mode:\n\n' +
+                  'Chrome/Edge: Ctrl + Shift + N\n' +
+                  'Firefox: Ctrl + Shift + P\n' +
+                  'Safari: Cmd + Shift + N\n\n' +
+                  'Then visit:\nhttps://advotac02.vercel.app/test_dashboard\n\n' +
+                  'This ensures no cache is used.');
+        }
+        
+        function clearCacheInstructions() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h2>Clear Cache Instructions:</h2>
+                
+                <div class="check-item info">
+                    <h3>Chrome/Edge:</h3>
+                    <ol>
+                        <li>Press <code>Ctrl + Shift + Delete</code></li>
+                        <li>Select "Cached images and files"</li>
+                        <li>Choose "All time"</li>
+                        <li>Click "Clear data"</li>
+                        <li>Refresh the dashboard</li>
+                    </ol>
+                </div>
+                
+                <div class="check-item info">
+                    <h3>Firefox:</h3>
+                    <ol>
+                        <li>Press <code>Ctrl + Shift + Delete</code></li>
+                        <li>Select "Cache"</li>
+                        <li>Click "Clear Now"</li>
+                        <li>Refresh the dashboard</li>
+                    </ol>
+                </div>
+                
+                <div class="check-item info">
+                    <h3>Quick Method (All Browsers):</h3>
+                    <ol>
+                        <li>Press <code>F12</code> to open DevTools</li>
+                        <li>Right-click the refresh button</li>
+                        <li>Select "Empty Cache and Hard Reload"</li>
+                    </ol>
+                </div>
+            `;
+        }
+        
+        // Auto-check on load
+        window.onload = function() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="check-item info">
+                    <span class="emoji">👋</span>
+                    <strong>Welcome!</strong><br>
+                    Click "Check Version" to test if the new dashboard is working.
+                </div>
+                
+                <div class="check-item info">
+                    <span class="emoji">⏰</span>
+                    <strong>Deployment Time:</strong> October 16, 2025<br>
+                    <strong>Version:</strong> 2.0 - Enhanced Dashboard<br>
+                    <strong>Status:</strong> ✅ Deployed
+                </div>
+            `;
+        };
+    </script>
+</body>
+</html>

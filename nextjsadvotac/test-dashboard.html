@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advotac - Database Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .status.loading {
+            background: #ffd93d;
+            color: #333;
+        }
+        
+        .status.success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .status.error {
+            background: #f44336;
+            color: white;
+        }
+        
+        .result {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+        }
+        
+        .result pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        
+        .button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .button.secondary {
+            background: #764ba2;
+        }
+        
+        .button.secondary:hover {
+            background: #6a4291;
+        }
+        
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .info p {
+            color: #1565c0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .users-list {
+            margin-top: 15px;
+        }
+        
+        .user-card {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+        }
+        
+        .user-card strong {
+            color: #667eea;
+        }
+        
+        .metric {
+            display: inline-block;
+            margin-right: 20px;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .metric strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Advotac Database Test</h1>
+        <p class="subtitle">Testing your production deployment and database connection</p>
+        
+        <!-- Database Connection Test -->
+        <div class="test-section">
+            <h2>1. Database Connection Test</h2>
+            <span class="status loading" id="db-status">⏳ Testing...</span>
+            <div class="result" id="db-result" style="display:none;"></div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="test-section">
+            <h2>2. Quick Actions</h2>
+            <a href="https://advotac02.vercel.app" class="button" target="_blank">
+                🏠 Open Main App
+            </a>
+            <a href="https://advotac02.vercel.app/auth" class="button secondary" target="_blank">
+                🔐 Login with Google
+            </a>
+            <button class="button" onclick="refreshTest()">
+                🔄 Refresh Test
+            </button>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="test-section">
+            <h2>3. Test Google Login Flow</h2>
+            <div class="info">
+                <p><strong>Steps to test:</strong></p>
+                <p>1️⃣ Click "Login with Google" button above</p>
+                <p>2️⃣ Sign in with your Google account</p>
+                <p>3️⃣ Come back here and click "Refresh Test"</p>
+                <p>4️⃣ You should see your user data appear below! ✅</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/test-db-connection';
+        
+        async function testDatabase() {
+            const statusEl = document.getElementById('db-status');
+            const resultEl = document.getElementById('db-result');
+            
+            statusEl.className = 'status loading';
+            statusEl.textContent = '⏳ Connecting to database...';
+            resultEl.style.display = 'none';
+            
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusEl.className = 'status success';
+                    statusEl.textContent = '✅ Database Connected!';
+                    
+                    let html = '<div>';
+                    html += `<div class="metric"><strong>Database:</strong> ${data.data.database}</div>`;
+                    html += `<div class="metric"><strong>Total Users:</strong> ${data.data.totalUsers}</div>`;
+                    html += '</div>';
+                    
+                    if (data.data.recentUsers && data.data.recentUsers.length > 0) {
+                        html += '<div class="users-list">';
+                        html += '<h3 style="margin-top: 20px; margin-bottom: 10px; color: #333;">Recent Users:</h3>';
+                        data.data.recentUsers.forEach(user => {
+                            html += `<div class="user-card">`;
+                            html += `<strong>📧 ${user.email}</strong><br>`;
+                            html += `Name: ${user.name || 'N/A'}<br>`;
+                            html += `Provider: ${user.auth_provider}<br>`;
+                            html += `Created: ${new Date(user.created_at).toLocaleString()}`;
+                            html += `</div>`;
+                        });
+                        html += '</div>';
+                    } else {
+                        html += '<div class="info" style="margin-top: 20px;">';
+                        html += '<p>No users yet. Try logging in with Google! 👆</p>';
+                        html += '</div>';
+                    }
+                    
+                    resultEl.innerHTML = html;
+                    resultEl.style.display = 'block';
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = '❌ Connection Failed';
+                    resultEl.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    resultEl.style.display = 'block';
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = '❌ Test Failed';
+                resultEl.innerHTML = `<pre>Error: ${error.message}</pre>`;
+                resultEl.style.display = 'block';
+            }
+        }
+        
+        function refreshTest() {
+            testDatabase();
+        }
+        
+        // Run test on page load
+        testDatabase();
+    </script>
+</body>
+</html>

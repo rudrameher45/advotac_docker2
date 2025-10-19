@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Assistant Integration</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #0E8587;
+            margin-top: 0;
+        }
+        button {
+            background: #0E8587;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0a6d6f;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0E8587;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-card">
+        <h1>🧪 Assistant Integration Test</h1>
+        <p>Test the connection between frontend and FastAPI backend</p>
+        
+        <div id="status"></div>
+        
+        <h3>Test 1: Backend Health Check</h3>
+        <button onclick="testBackend()">Test Backend</button>
+        <div id="backend-result"></div>
+        
+        <h3>Test 2: Query API</h3>
+        <button onclick="testQuery()">Test Query API</button>
+        <div id="query-result"></div>
+        
+        <h3>Quick Links</h3>
+        <button onclick="window.open('http://localhost:3000/assistant', '_blank')">
+            Open Assistant Page
+        </button>
+        <button onclick="window.open('http://localhost:8000/docs', '_blank')">
+            Open API Docs
+        </button>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:8000';
+
+        async function testBackend() {
+            const resultDiv = document.getElementById('backend-result');
+            resultDiv.innerHTML = '<div class="info"><span class="loading"></span> Testing backend...</div>';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/docs`);
+                if (response.ok) {
+                    resultDiv.innerHTML = '<div class="success">✅ Backend is running at ' + BACKEND_URL + '</div>';
+                } else {
+                    resultDiv.innerHTML = '<div class="error">❌ Backend returned status: ' + response.status + '</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">❌ Failed to connect to backend: ' + error.message + 
+                    '<br><br><strong>Make sure FastAPI is running:</strong><br>' +
+                    '<code>cd fastapi && python -m uvicorn main:app --reload</code></div>';
+            }
+        }
+
+        async function testQuery() {
+            const resultDiv = document.getElementById('query-result');
+            resultDiv.innerHTML = '<div class="info"><span class="loading"></span> Sending test query...</div>';
+            
+            const testQuery = "What is Section 185 Companies Act 2013?";
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/assistant/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: testQuery,
+                        top_k: 5,
+                        threshold: 0.7,
+                        validate: true
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'API returned error');
+                }
+                
+                const data = await response.json();
+                
+                let html = '<div class="success">✅ Query API is working!</div>';
+                html += '<h4>Response Preview:</h4>';
+                html += '<p><strong>Query:</strong> ' + data.query + '</p>';
+                html += '<p><strong>Answer:</strong> ' + data.answer.substring(0, 200) + '...</p>';
+                html += '<p><strong>Sources Found:</strong> ' + data.sources.length + '</p>';
+                html += '<p><strong>Expanded Queries:</strong> ' + data.expanded_queries.length + '</p>';
+                html += '<details><summary>Full Response (click to expand)</summary><pre>' + 
+                        JSON.stringify(data, null, 2) + '</pre></details>';
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">❌ Query failed: ' + error.message + 
+                    '<br><br>Make sure:<br>' +
+                    '1. FastAPI is running<br>' +
+                    '2. Qdrant collection is correct<br>' +
+                    '3. Check browser console for CORS errors</div>';
+            }
+        }
+
+        // Auto-test on load
+        window.onload = function() {
+            document.getElementById('status').innerHTML = 
+                '<div class="info">ℹ️ Click the buttons above to test the integration</div>';
+        };
+    </script>
+</body>
+</html>

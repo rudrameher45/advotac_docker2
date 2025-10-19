@@ -1,0 +1,44 @@
+# FastAPI Core
+fastapi>=0.104.1
+uvicorn>=0.24.0
+python-jose[cryptography]>=3.3.0
+python-multipart>=0.0.6
+requests>=2.31.0
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+pydantic-settings>=2.0.0
+starlette>=0.27.0
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+asyncpg>=0.29.0
+
+# Azure OpenAI
+openai>=1.0.0
+
+# LangChain
+langchain>=0.1.0
+langchain-openai>=0.0.2
+langsmith>=0.0.60
+
+# Vector Database (Qdrant)
+qdrant-client>=1.7.0
+
+# Background Tasks (Optional - for async processing)
+celery>=5.3.0
+redis>=5.0.0
+
+# Utilities
+colorama>=0.4.6
+python-dateutil>=2.8.2
+
+# PDF Generation
+reportlab>=4.0.0
+PyPDF2>=3.0.0
+
+# Document Generation
+python-docx>=1.0.0
+
+# File Processing
+python-magic>=0.4.27
