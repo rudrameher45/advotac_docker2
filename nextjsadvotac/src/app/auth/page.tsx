@@ -238,8 +238,8 @@ export default function AuthPage() {
     
     try {
       // Redirect to FastAPI Google OAuth endpoint (localhost)
-      const fastApiUrl = 'http://localhost:8000';
-      const callbackUrl = encodeURIComponent('http://localhost:3000/auth/callback');
+      const fastApiUrl = 'https://api.advotac.com/';
+      const callbackUrl = encodeURIComponent('https://advotac.com//auth/callback');
       const redirectUrl = `${fastApiUrl}/auth/google?callback_url=${callbackUrl}`;
       
       console.log('🚀 [AUTH] Redirecting to FastAPI OAuth endpoint...');

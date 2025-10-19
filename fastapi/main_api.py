@@ -99,7 +99,6 @@ async def normalize_path_middleware(request: Request, call_next):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
         "https://advotac.com",
         settings.FRONTEND_URL,
     ],

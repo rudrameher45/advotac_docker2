@@ -6,7 +6,7 @@ type GlobalEnvHolder = {
 
 const holder = (typeof globalThis !== 'undefined' ? (globalThis as unknown as GlobalEnvHolder) : undefined) ?? {};
 const envBase = holder.process?.env?.NEXT_PUBLIC_FASTAPI_BASE_URL ?? holder.env?.NEXT_PUBLIC_FASTAPI_BASE_URL;
-export const FASTAPI_BASE = (envBase ?? 'http://localhost:8000').replace(/\/+$/,'');
+export const FASTAPI_BASE = (envBase ?? 'https://api.advotac.com').replace(/\/+$/,'');
 
 /**
  * Build a full URL for the FastAPI backend ensuring there are no duplicate slashes.
