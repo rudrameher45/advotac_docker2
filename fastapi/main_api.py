@@ -10,6 +10,7 @@ Last Updated: October 12, 2025
 """
 
 from fastapi import FastAPI, HTTPException, Depends, Request
+import re
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -57,6 +58,23 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+
+# Normalize duplicate slashes in incoming request paths (e.g. //api/assistant -> /api/assistant)
+@app.middleware("http")
+async def normalize_path_middleware(request: Request, call_next):
+    try:
+        path = request.scope.get('path', '')
+        if isinstance(path, str) and '//' in path:
+            # Replace multiple slashes with a single slash
+            new_path = re.sub(r'/{2,}', '/', path)
+            request.scope['path'] = new_path
+    except Exception:
+        # Don't block the request if middleware fails; proceed to handler
+        pass
+
+    response = await call_next(request)
+    return response
+
 # ============================================================================
 # CORS MIDDLEWARE
 # ============================================================================
@@ -64,8 +82,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        settings.FRONTEND_URL or 'https://advotac.com',
-        'https://advotac.com',
+       
+        "https://advotac.com/",
+        settings.FRONTEND_URL,
+        ,
     ],
     allow_credentials=True,
     allow_methods=["*"],

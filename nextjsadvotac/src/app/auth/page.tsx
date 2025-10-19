@@ -237,11 +237,9 @@ export default function AuthPage() {
     setToast({ type: 'info', message: `Connecting to ${provider}...` });
     
     try {
-      // Use environment-backed backend/frontend URLs
-      const FASTAPI_BASE = process.env.NEXT_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.advotac.com';
-      const FRONTEND_BASE = process.env.NEXT_PUBLIC_FRONTEND_URL ?? 'https://advotac.com';
-      const fastApiUrl = FASTAPI_BASE;
-      const callbackUrl = encodeURIComponent(`${FRONTEND_BASE}/auth/callback`);
+      // Redirect to FastAPI Google OAuth endpoint (localhost)
+      const fastApiUrl = 'http://localhost:8000';
+      const callbackUrl = encodeURIComponent('http://localhost:3000/auth/callback');
       const redirectUrl = `${fastApiUrl}/auth/google?callback_url=${callbackUrl}`;
       
       console.log('🚀 [AUTH] Redirecting to FastAPI OAuth endpoint...');

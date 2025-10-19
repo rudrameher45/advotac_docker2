@@ -42,8 +42,6 @@ const USER_ROLES = [
   { value: 'organisation', label: 'Organisation' }
 ];
 
-const FASTAPI_BASE_URL = process.env.NEXT_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.advotac.com';
-
 export default function Settings() {
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -86,9 +84,7 @@ export default function Settings() {
       }
 
       // Load user info
-      const FASTAPI_BASE_URL = process.env.NEXT_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.advotac.com';
-
-      const response = await fetch(`${FASTAPI_BASE_URL}/user-info`, {
+      const response = await fetch('http://localhost:8000/user-info', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -152,7 +148,7 @@ export default function Settings() {
 
       console.log('📤 [SETTINGS] Updating profile:', updateData);
 
-  const response = await fetch(`${FASTAPI_BASE_URL}/user-info`, {
+      const response = await fetch('http://localhost:8000/user-info', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -65,7 +65,7 @@ PGDATABASE=fastapi_oauth_db
 # Google OAuth
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-GOOGLE_REDIRECT_URI=https://api.advotac.com/auth/google/callback
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
 
 # JWT
 SECRET_KEY=your_secret_key_minimum_32_characters
@@ -73,8 +73,8 @@ ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 # URLs
-FRONTEND_URL=https://advotac.com
-BACKEND_URL=https://api.advotac.com
+FRONTEND_URL=http://localhost:3000
+BACKEND_URL=http://localhost:8000
 ```
 
 ### 3. Run the API
@@ -89,13 +89,13 @@ python main_api.py
 python main.py
 ```
 
-API will be available at your configured BACKEND_URL (e.g. `https://api.advotac.com`)
+API will be available at: `http://localhost:8000`
 
 ### 4. Access Documentation
 
--- **Swagger UI:** https://api.advotac.com/docs
--- **ReDoc:** https://api.advotac.com/redoc
--- **Health Check:** https://api.advotac.com/health
+- **Swagger UI:** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
+- **Health Check:** http://localhost:8000/health
 
 ---
 
@@ -144,14 +144,14 @@ API will be available at your configured BACKEND_URL (e.g. `https://api.advotac.
 
 ```javascript
 // 1. Redirect to Google
-window.location.href = 'https://api.advotac.com/auth/google';
+window.location.href = 'http://localhost:8000/auth/google';
 
 // 2. After callback, get token
 const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 localStorage.setItem('access_token', token);
 
 // 3. Use token for API calls
-fetch('https://api.advotac.com/me', {
+fetch('http://localhost:8000/me', {
   headers: {
     'Authorization': `Bearer ${token}`
   }

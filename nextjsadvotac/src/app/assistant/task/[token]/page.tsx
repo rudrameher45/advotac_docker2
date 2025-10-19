@@ -1,7 +1,9 @@
-'use client';
+"use client";
+import React from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { useEffect, useState, FormEvent } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useEffect, useState, FormEvent } from 'react';
 import './result.css';
 
 interface UserData {
@@ -90,24 +92,22 @@ const FALLBACK_SUGGESTION_TEMPLATES: SuggestionTemplate[] = [
   (query) => `How does "${query}" affect compliance obligations?`,
 ];
 
-const FASTAPI_BASE_URL = process.env.NEXT_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.advotac.com';
-const GENERAL_HISTORY_API_BASE = `${FASTAPI_BASE_URL}/api/assistant/general-history`;
+import { apiUrl } from '../../../../lib/api';
+const GENERAL_HISTORY_API_BASE = apiUrl('/api/assistant/general-history');
 
-// Minimal jsPDF types used in this file to avoid `any` and provide needed methods
-type JsPDFCtor = new (options?: unknown) => JsPDFInstance;
-
-interface JsPDFInstance {
-  internal: { pageSize: { getWidth(): number; getHeight(): number } };
-  addPage(): void;
-  setFont(fontName: string, fontStyle?: string): void;
-  setFontSize(size: number): void;
-  setTextColor(r: number, g: number, b: number): void;
-  text(text: string | string[], x: number, y: number): void;
-  splitTextToSize(text: string, maxWidth: number): string[];
-  getNumberOfPages(): number;
-  setPage(pageNumber: number): void;
-  save(filename: string): void;
-}
+// PDF helper type used by jsPDF runtime instance
+type PdfInstance = {
+  internal: { pageSize: { getWidth: () => number; getHeight: () => number } };
+  addPage: () => void;
+  setFont: (family: string, style?: string) => void;
+  setFontSize: (size: number) => void;
+  text: (text: string | string[], x: number, y: number) => void;
+  setTextColor: (r: number, g: number, b: number) => void;
+  splitTextToSize: (text: string, size: number) => string[];
+  getNumberOfPages?: () => number;
+  setPage?: (page: number) => void;
+  save?: (filename: string) => void;
+};
 
 function FormattedAnswer({ answer }: { answer: string }) {
   const formatAnswer = (text: string) => {
@@ -718,7 +718,7 @@ export default function AssistantAnalysisResult() {
     ]);
 
     try {
-      const response = await fetch(`${FASTAPI_BASE_URL}/api/assistant/query-v2`, {
+  const response = await fetch(apiUrl('/api/assistant/query-v2'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -837,7 +837,7 @@ export default function AssistantAnalysisResult() {
     ]);
 
     try {
-      const response = await fetch(`${FASTAPI_BASE_URL}/api/assistant/query-v2`, {
+  const response = await fetch(apiUrl('/api/assistant/query-v2'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1070,21 +1070,23 @@ export default function AssistantAnalysisResult() {
       jspdf?: { jsPDF?: unknown };
     };
 
+    type PdfConstructor = new (...args: unknown[]) => Record<string, unknown>;
+
     if (globalWindow.jspdf?.jsPDF) {
-      return globalWindow.jspdf.jsPDF as JsPDFCtor;
+      return globalWindow.jspdf.jsPDF as PdfConstructor;
     }
 
     if (globalWindow.jsPDF) {
-      return globalWindow.jsPDF as JsPDFCtor;
+      return globalWindow.jsPDF as PdfConstructor;
     }
 
     const existingScript = document.getElementById('jspdf-script') as HTMLScriptElement | null;
     if (existingScript) {
-      return new Promise<JsPDFCtor>((resolve, reject) => {
+      return new Promise<PdfConstructor>((resolve, reject) => {
         existingScript.addEventListener('load', () => {
           const ctor = globalWindow.jspdf?.jsPDF || globalWindow.jsPDF;
           if (ctor) {
-            resolve(ctor as JsPDFCtor);
+            resolve(ctor as PdfConstructor);
           } else {
             reject(new Error('PDF generator unavailable.'));
           }
@@ -1093,7 +1095,7 @@ export default function AssistantAnalysisResult() {
       });
     }
 
-  return new Promise<JsPDFCtor>((resolve, reject) => {
+    return new Promise<PdfConstructor>((resolve, reject) => {
       const script = document.createElement('script');
       script.id = 'jspdf-script';
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -1101,7 +1103,7 @@ export default function AssistantAnalysisResult() {
       script.onload = () => {
         const ctor = globalWindow.jspdf?.jsPDF || globalWindow.jsPDF;
         if (ctor) {
-          resolve(ctor as JsPDFCtor);
+          resolve(ctor as PdfConstructor);
         } else {
           reject(new Error('PDF generator unavailable.'));
         }
@@ -1122,7 +1124,21 @@ export default function AssistantAnalysisResult() {
           throw new Error('PDF generator unavailable.');
         }
 
-        const doc = new JsPdfConstructor({ unit: 'pt', format: 'a4' });
+        const docAny = new JsPdfConstructor({ unit: 'pt', format: 'a4' });
+        type PdfInstance = {
+          internal: { pageSize: { getWidth: () => number; getHeight: () => number } };
+          addPage: () => void;
+          setFont: (family: string, style?: string) => void;
+          setFontSize: (size: number) => void;
+          text: (text: string | string[], x: number, y: number) => void;
+          setTextColor: (r: number, g: number, b: number) => void;
+          splitTextToSize: (text: string, size: number) => string[];
+          getNumberOfPages?: () => number;
+          setPage?: (page: number) => void;
+          save?: (filename: string) => void;
+        };
+
+        const doc = docAny as unknown as PdfInstance;
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         const margin = 48;
@@ -1278,16 +1294,22 @@ export default function AssistantAnalysisResult() {
           doc.text(doc.splitTextToSize(line, contentWidth), margin, cursorY);
           cursorY += lineHeight;
         });
-        const totalPages = doc.getNumberOfPages();
-        for (let pageIndex = 1; pageIndex <= totalPages; pageIndex += 1) {
-          doc.setPage(pageIndex);
-          doc.setFont('helvetica', 'italic');
-          doc.setFontSize(9);
-          doc.setTextColor(120, 120, 120);
-          doc.text('Generated by Advotac', margin, pageHeight - margin / 2);
+        if (typeof doc.getNumberOfPages === 'function') {
+          const totalPages = doc.getNumberOfPages();
+          for (let pageIndex = 1; pageIndex <= totalPages; pageIndex += 1) {
+            if (typeof doc.setPage === 'function') {
+              doc.setPage(pageIndex);
+            }
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(9);
+            doc.setTextColor(120, 120, 120);
+            doc.text('Generated by Advotac', margin, pageHeight - margin / 2);
+          }
         }
 
-        doc.save(`advotac-analysis-${analysis.token}.pdf`);
+        if (typeof doc.save === 'function') {
+          doc.save(`advotac-analysis-${analysis.token}.pdf`);
+        }
       } catch (pdfGenerationError) {
         console.error('[ASSISTANT RESULT] Analysis PDF generation failed:', pdfGenerationError);
         const message =
@@ -1320,7 +1342,8 @@ export default function AssistantAnalysisResult() {
         throw new Error('PDF generator unavailable.');
       }
 
-      const doc = new JsPdfConstructor({ unit: 'pt', format: 'a4' });
+  const docAny = new JsPdfConstructor({ unit: 'pt', format: 'a4' });
+  const doc = docAny as unknown as PdfInstance;
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
       const margin = 48;
@@ -1420,16 +1443,22 @@ export default function AssistantAnalysisResult() {
       doc.setFontSize(9);
       doc.setTextColor(100, 100, 100);
       const generatedByText = 'Generated by Advotac';
-      const totalPages = doc.getNumberOfPages();
-      for (let pageIndex = 1; pageIndex <= totalPages; pageIndex += 1) {
-        doc.setPage(pageIndex);
-        doc.setFont('helvetica', 'italic');
-        doc.setFontSize(9);
-        doc.setTextColor(120, 120, 120);
-        doc.text(generatedByText, margin, pageHeight - margin / 2);
+      if (typeof doc.getNumberOfPages === 'function') {
+        const totalPages = doc.getNumberOfPages();
+        for (let pageIndex = 1; pageIndex <= totalPages; pageIndex += 1) {
+          if (typeof doc.setPage === 'function') {
+            doc.setPage(pageIndex);
+          }
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(9);
+          doc.setTextColor(120, 120, 120);
+          doc.text(generatedByText, margin, pageHeight - margin / 2);
+        }
       }
 
-      doc.save(`advotac-results-${Date.now()}.pdf`);
+      if (typeof doc.save === 'function') {
+        doc.save(`advotac-results-${Date.now()}.pdf`);
+      }
     } catch (pdfGenerationError) {
       console.error('[ASSISTANT RESULT] PDF generation failed:', pdfGenerationError);
       const message =
@@ -1632,7 +1661,7 @@ export default function AssistantAnalysisResult() {
     const followUpTaskName = `${parentTaskName} Follow-up`;
 
     try {
-      await fetch(`${FASTAPI_BASE_URL}/api/assistant/general-history`, {
+  await fetch(apiUrl('/api/assistant/general-history'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

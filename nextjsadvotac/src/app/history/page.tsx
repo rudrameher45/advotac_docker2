@@ -23,7 +23,7 @@ interface HistoryEntry {
   token?: string | null;
 }
 
-const FASTAPI_BASE_URL = process.env.NEXT_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.advotac.com';
+import { apiUrl } from '../../lib/api';
 
 function formatDate(isoString: string) {
   try {
@@ -67,7 +67,7 @@ export default function HistoryPage() {
         if (email) params.append('user_email', email);
         params.append('limit', '50');
 
-        const response = await fetch(`${FASTAPI_BASE_URL}/api/assistant/history?${params.toString()}`, {
+  const response = await fetch(apiUrl(`/api/assistant/history?${params.toString()}`), {
           headers: {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),

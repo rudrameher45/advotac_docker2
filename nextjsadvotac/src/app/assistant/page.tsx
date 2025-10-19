@@ -50,7 +50,7 @@ const TASK_OPTIONS = [
   { value: 'Citation Check', label: 'Citation Check' },
 ];
 
-const FASTAPI_BASE_URL = 'https://api.advotac.com/';
+import { apiUrl } from '../../lib/api';
 
 export default function Assistant() {
   const router = useRouter();
@@ -181,7 +181,7 @@ export default function Assistant() {
           payload.text = trimmedInstructions;
         }
 
-        const response = await fetch(`${FASTAPI_BASE_URL}/api/assistant/analysis`, {
+  const response = await fetch(apiUrl('/api/assistant/analysis'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -235,7 +235,7 @@ export default function Assistant() {
         return;
       }
 
-      const response = await fetch(`${FASTAPI_BASE_URL}/api/assistant/query-v2`, {
+  const response = await fetch(apiUrl('/api/assistant/query-v2'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -283,7 +283,7 @@ export default function Assistant() {
       }
 
       try {
-        await fetch(`${FASTAPI_BASE_URL}/api/assistant/general-history`, {
+  await fetch(apiUrl('/api/assistant/general-history'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

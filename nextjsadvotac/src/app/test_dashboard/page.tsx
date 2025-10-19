@@ -55,9 +55,8 @@ export default function TestDashboard() {
         setLoading(true);
         console.log('📡 [DASHBOARD] Fetching user profile from FastAPI backend...');
         
-  // Fetch user data from FastAPI backend
-  const FASTAPI_BASE_URL = process.env.NEXT_PUBLIC_FASTAPI_BASE_URL ?? 'https://api.advotac.com';
-  const response = await fetch(`${FASTAPI_BASE_URL}/api/user/profile`, {
+        // Fetch user data from FastAPI backend
+        const response = await fetch('http://localhost:8000/api/user/profile', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
